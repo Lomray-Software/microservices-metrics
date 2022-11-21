@@ -1,0 +1,144 @@
+name: Release
+on:
+  push:
+    branches:
+      - staging
+      - prod
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-sonarcube
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.20.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check microservice typescript
+        run: npm run ts:check
+
+      - name: Run eslint
+        run: npm run lint:check
+
+      - name: Build
+        run: npm run build
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: |
+            lib/*
+            # keep update version
+            src/package.json
+
+  build-docker:
+    name: Build docker image
+    needs: [build]
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-sonarcube
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+
+      - name: Get npm package version
+        id: package-version
+        uses: Saionaro/extract-package-version@v1.1.1
+        with:
+          path: ${{ env.WORK_DIR }}
+
+      - name: Branch name & docker tag
+        id: other-params
+        shell: bash
+        run: |
+          branch=$(echo ${GITHUB_REF#refs/heads/})
+          # define docker tag
+          if [ "$branch" == "staging" ]; then
+            echo "::set-output name=docker-tag::-$branch"
+          else
+            echo "::set-output name=docker-tag::"
+          fi
+
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: "Lomray-Software/microservices-metrics/metrics"
+          tags: "latest${{ steps.other-params.outputs.docker-tag }},${{ steps.package-version.outputs.version }}"
+          dockerfile: Dockerfile
+          buildoptions: "--compress --force-rm --no-cache"
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [build-docker]
+    concurrency:
+      group: ${{ github.ref }}-sonarcube
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - uses: actions/download-artifact@master
+        with:
+          name: artifacts
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+  sonarcube:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}-sonarcube
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@master
+        with:
+          name: coverage-lcov
+          path: coverage
+
+      - name: Get npm package version
+        id: package-version
+        uses: Saionaro/extract-package-version@v1.1.1
+
+      - uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_CLOUD_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectVersion=${{ steps.package-version.outputs.version }}

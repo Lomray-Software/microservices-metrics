@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  metrics:
+    image: ghcr.io/lomray-software/microservices-metrics/metrics:latest-staging
+    container_name: metrics
+
+# for testing
+#  agent:
+#    image: matthewpatell/opentelemetry-collector:latest
+#    environment:
+#      TEMPO_ENDPOINT: tempo-us-central1.grafana.net:443
+#      TEMPO_BASIC_AUTH: FILL_THIS_FIELD
+#      METRIC_ENDPOINT: https://prometheus-prod-10-prod-us-central-0.grafana.net/api/prom/push
+#      METRIC_BASIC_AUTH: FILL_THIS_FIELD
+#    ports:
+#      - "4318:4318"
