@@ -11,8 +11,7 @@ module.exports = {
     '@semantic-release/commit-analyzer',
     '@semantic-release/release-notes-generator',
     ['@semantic-release/exec', {
-      publishCmd: "sed -i -e 's/1.0.0/${nextRelease.version}/g' lib/package.json.js" +
-        " && sed -i -e 's/\"1.0.0\"/\"${nextRelease.version}\"/g' package.json" +
+      publishCmd: "sed -i -e 's/\"1.0.0\"/\"${nextRelease.version}\"/g' package.json" +
         " && zip -r build.zip lib"
     }],
     ['@semantic-release/github', {

@@ -18,7 +18,7 @@ const config = {
     preserveModulesRoot: 'src',
     exports: 'auto',
   },
-  external: [],
+  external: ['dns', '@opentelemetry/sdk-metrics'],
   plugins: [
     cleaner({
       targets: ['./lib/'],
