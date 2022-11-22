@@ -182,9 +182,17 @@ class IjsonMetrics extends BaseService {
    */
   public start(): void {
     this.createMetrics();
+    this.obtain();
+  }
+
+  /**
+   * Obtain metrics by interval
+   * @private
+   */
+  private obtain(): void {
     setTimeout(() => {
       void this.collect().then(() => {
-        this.start();
+        this.obtain();
       });
     }, 1000);
   }
