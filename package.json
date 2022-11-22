@@ -9,6 +9,7 @@
 		"inverted",
 		"json",
 		"metrics",
+    "ijson",
 		"typescript"
 	],
 	"publishConfig": {
