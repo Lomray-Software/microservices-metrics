@@ -4,8 +4,14 @@
 ![GitHub package.json dependency version (dev dep on branch)](https://img.shields.io/github/package-json/dependency-version/Lomray-Software/microservices-metrics/dev/typescript/staging)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-Staging: [![Build staging](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/build.yml/badge.svg?branch=staging)](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/build.yml)   
-Prod: [![Build prod](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/build.yml/badge.svg?branch=prod)](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/build.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=microservices-metrics&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=microservices-metrics)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=microservices-metrics&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=microservices-metrics)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=microservices-metrics&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=microservices-metrics)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=microservices-metrics&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=microservices-metrics)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=microservices-metrics&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=microservices-metrics)
+
+Staging: [![Build staging](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/release.yml/badge.svg?branch=staging)](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/release.yml)   
+Prod: [![Build prod](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/release.yml/badge.svg?branch=prod)](https://github.com/Lomray-Software/microservices-metrics/actions/workflows/release.yml)
 
 ## Navigation
 - [ENVIRONMENTS](#environments)
