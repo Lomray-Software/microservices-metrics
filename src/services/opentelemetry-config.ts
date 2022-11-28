@@ -33,14 +33,27 @@ class OpentelemetryConfig extends BaseService {
         environment: ENVIRONMENT,
       }),
     });
+    const exporter = new OTLPMetricExporter({ url: `${otlpUrl}/v1/metrics` });
     const metricReader = new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({ url: `${otlpUrl}/v1/metrics` }),
+      exporter,
       exportIntervalMillis: 1000,
     });
 
     meterProvider.addMetricReader(metricReader);
-
     metrics.setGlobalMeterProvider(meterProvider);
+
+    // track srv records changes
+    if (MS_OPENTELEMETRY_OTLP_URL_SRV) {
+      setInterval(() => {
+        OpentelemetryConfig.getConnection(MS_OPENTELEMETRY_OTLP_URL, MS_OPENTELEMETRY_OTLP_URL_SRV)
+          .then((url) => {
+            exporter['url'] = url;
+          })
+          .catch((e) => {
+            console.log('Failed resolve srv records: ', e);
+          });
+      }, 30000);
+    }
   }
 }
 
