@@ -16,6 +16,14 @@ import BaseService from '@services/base-service';
  */
 class OpentelemetryConfig extends BaseService {
   /**
+   * Get metric url
+   * @protected
+   */
+  protected static getMetricUrl(host: string): string {
+    return `${host}/v1/metrics`;
+  }
+
+  /**
    * Create metrics provider
    */
   public static async init(): Promise<void> {
@@ -26,6 +34,7 @@ class OpentelemetryConfig extends BaseService {
     const otlpUrl = await OpentelemetryConfig.getConnection(
       MS_OPENTELEMETRY_OTLP_URL,
       MS_OPENTELEMETRY_OTLP_URL_SRV,
+      false,
     );
     const meterProvider = new MeterProvider({
       resource: new Resource({
@@ -33,7 +42,8 @@ class OpentelemetryConfig extends BaseService {
         environment: ENVIRONMENT,
       }),
     });
-    const exporter = new OTLPMetricExporter({ url: `${otlpUrl}/v1/metrics` });
+
+    const exporter = new OTLPMetricExporter({ url: this.getMetricUrl(otlpUrl) });
     const metricReader = new PeriodicExportingMetricReader({
       exporter,
       exportIntervalMillis: 1000,
@@ -45,14 +55,19 @@ class OpentelemetryConfig extends BaseService {
     // track srv records changes
     if (MS_OPENTELEMETRY_OTLP_URL_SRV) {
       setInterval(() => {
-        OpentelemetryConfig.getConnection(MS_OPENTELEMETRY_OTLP_URL, MS_OPENTELEMETRY_OTLP_URL_SRV)
+        OpentelemetryConfig.getConnection(
+          MS_OPENTELEMETRY_OTLP_URL,
+          MS_OPENTELEMETRY_OTLP_URL_SRV,
+          false,
+        )
           .then((url) => {
-            exporter['url'] = url;
+            // @ts-ignore
+            exporter['_otlpExporter']['url'] = this.getMetricUrl(url);
           })
           .catch((e) => {
             console.log('Failed resolve srv records: ', e);
           });
-      }, 30000);
+      }, 5000);
     }
   }
 }

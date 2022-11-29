@@ -13,9 +13,13 @@ class BaseService {
    * Return connection string or resolve SRV record and return connection string.
    * @protected
    */
-  protected static async getConnection(connection: string, isSRV = false): Promise<string> {
+  protected static async getConnection(
+    connection: string,
+    isSRV = false,
+    shouldCached = true,
+  ): Promise<string> {
     if (isSRV) {
-      if (this.cachedConnections[connection]) {
+      if (shouldCached && this.cachedConnections[connection]) {
         return this.cachedConnections[connection];
       }
 
